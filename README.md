@@ -11,79 +11,53 @@ The pipeline processes each paper through several stages. First, it extracts a s
 For terms judged as Incorrect or Partial, the system searches the existing 472-term taxonomy for a better match using embedding similarity. When multiple candidates are close, a disambiguation agent selects the best one based on the paper's actual content. If no suitable match exists in the current taxonomy, the term is flagged as a potential new category.
 
 In parallel, the pipeline runs a completeness index (FCI) that checks for missing required fields, validates URLs and dates, and detects language mismatches. A semantic quality layer evaluates whether the abstract is informative, keywords are meaningful, and geographic coverage is consistent. Finally, a cross-check module looks for contradictions between all these signals — for instance, a paper where all terms are "Correct" but the FCI says keywords are missing.
+flowchart TD
+    START["📄 150 Papers + Taxonomy"]
+    
+    FCI["🔍 FCI Rules\n(Python)"]
+    SEM["🧠 FCI Semantic\n(Haiku 3)"]
+    EMB["📐 Embeddings\n(Local)"]
+    EXT["📝 Extractor\n(Haiku 4.5)\nFull text → 500w summary"]
 
-```
-                        ┌──────────────────────────────────────────┐
-                        │         📄 150 Papers + Taxonomy          │
-                        └──────────────────┬───────────────────────┘
-                                           │
-              ┌────────────────────────────┼────────────────────────────┐
-              │                            │                            │
-    ┌─────────▼──────────┐   ┌─────────────▼────────────┐   ┌─────────▼──────────┐
-    │   🔍 FCI Rules     │   │  🧠 FCI Semantic         │   │  📐 Embeddings     │
-    │     (Python)       │   │    (Haiku 3)             │   │    (Local)         │
-    └────────────────────┘   └──────────────────────────┘   └────────────────────┘
-              │                            │                            │
-              │                  ┌─────────▼──────────┐                │
-              │                  │  📝 Extractor       │                │
-              │                  │    (Haiku 4.5)      │                │
-              │                  │  Full text → 500w   │                │
-              │                  └─────────┬──────────┘                │
-              └────────────────────────────┼───────────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │  ⚖️  Accuracy Judge                      │
-                        │     Haiku 3 × 3 parallel votes           │
-                        │     [summary + abstract + JEL + spatial] │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │  🚦 Quality Gate                         │
-                        │     ≥95% judged? ≥80% unanimous?         │
-                        └───────┬──────────────────┬───────────────┘
-                           PASS │                  │ FAIL
-                                │    ┌─────────────▼────────────┐
-                                │    │  🔄 ReJudge              │
-                                │    │     Haiku 3 × 5 votes    │
-                                │    └─────────────┬────────────┘
-                                │                  │
-                        ┌───────▼──────────────────▼───────────────┐
-                        │  🏷️  Taxonomy Matcher                    │
-                        │     Embeddings → top-5 candidates        │
-                        │     Haiku 4.5 selector if ambiguous      │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │  ➕ Enrichment                            │
-                        │     Haiku 3 — suggest missing terms      │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                                    Disputes? ──Yes──┐
-                                       │             │
-                                       No    ┌───────▼────────────┐
-                                       │     │ 👨‍⚖️ Critic          │
-                                       │     │    Haiku 4.5       │
-                                       │     └───────┬────────────┘
-                                       │             │
-                        ┌──────────────▼─────────────▼─────────────┐
-                        │  🔀 Cross-Check (Python)                  │
-                        │     FCI ↔ Accuracy ↔ Enrichment          │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │  📋 Reporter (Haiku 4.5)                  │
-                        │     Audit narratives for worst papers    │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │  📊 Merge → JSON + CSV + Charts           │
-                        └──────────────────┬───────────────────────┘
-                                           │
-                        ┌──────────────────▼───────────────────────┐
-                        │       ✅ audit_consolidated.json          │
-                        └──────────────────────────────────────────┘
-```
+    ACC["⚖️ Accuracy Judge\nHaiku 3 × 3 parallel votes\ncontext: summary + abstract + JEL + spatial"]
+    QG{"🚦 Quality Gate\n≥95% judged?\n≥80% unanimous?"}
+    REJ["🔄 ReJudge\nHaiku 3 × 5 votes"]
+    TAX["🏷️ Taxonomy Matcher\nEmbeddings → top-5 candidates\nHaiku 4.5 selector if ambiguous"]
+    ENR["➕ Enrichment\nHaiku 3\nSuggest missing terms"]
+    CRIT{"Disputes?"}
+    CR["👨‍⚖️ Critic\nHaiku 4.5\nResolve disagreements"]
+    XC["🔀 Cross-Check\n(Python)\nFCI ↔ Accuracy ↔ Enrichment"]
+    REP["📋 Reporter\nHaiku 4.5\nAudit narratives"]
+    OUT["📊 Merge → JSON + CSV + Charts"]
+    FIN["✅ audit_consolidated.json"]
 
+    START --> FCI & SEM & EMB & EXT
+    FCI & SEM & EMB & EXT --> ACC
+    ACC --> QG
+    QG -->|PASS| TAX
+    QG -->|FAIL| REJ --> TAX
+    TAX --> ENR
+    ENR --> CRIT
+    CRIT -->|Yes| CR --> XC
+    CRIT -->|No| XC
+    XC --> REP --> OUT --> FIN
+
+    style START fill:#DBFAFE,stroke:#0075C1,color:#000
+    style FCI fill:#fff,stroke:#0075C1
+    style SEM fill:#fff,stroke:#0075C1
+    style EMB fill:#fff,stroke:#0075C1
+    style EXT fill:#fff,stroke:#89407E
+    style ACC fill:#fff3e0,stroke:#C93F16
+    style QG fill:#fff,stroke:#C93F16
+    style REJ fill:#fff,stroke:#CE4137
+    style TAX fill:#f3e5f5,stroke:#89407E
+    style ENR fill:#fff,stroke:#0075C1
+    style CRIT fill:#fff,stroke:#C4426A
+    style CR fill:#fff,stroke:#6A3365
+    style XC fill:#fff,stroke:#0052D6
+    style REP fill:#fff,stroke:#89407E
+    style OUT fill:#fff,stroke:#0075C1
+    style FIN fill:#e8f5e9,stroke:#2e7d32,color:#000
 ## Tiered Model Usage
 
 | Node | Model | Role | Est. Calls | 
