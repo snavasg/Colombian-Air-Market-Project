@@ -12,6 +12,10 @@ For terms judged as Incorrect or Partial, the system searches the existing 472-t
 
 In parallel, the pipeline runs a completeness index (FCI) that checks for missing required fields, validates URLs and dates, and detects language mismatches. A semantic quality layer evaluates whether the abstract is informative, keywords are meaningful, and geographic coverage is consistent. Finally, a cross-check module looks for contradictions between all these signals — for instance, a paper where all terms are "Correct" but the FCI says keywords are missing.
 flowchart TD
+
+
+```mermaid
+flowchart TD
     START["📄 150 Papers + Taxonomy"]
     
     FCI["🔍 FCI Rules\n(Python)"]
@@ -58,6 +62,7 @@ flowchart TD
     style REP fill:#fff,stroke:#89407E
     style OUT fill:#fff,stroke:#0075C1
     style FIN fill:#e8f5e9,stroke:#2e7d32,color:#000
+```
 ## Tiered Model Usage
 
 | Node | Model | Role | Est. Calls | 
