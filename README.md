@@ -47,20 +47,20 @@ flowchart TD
     XC --> REP --> OUT --> FIN
 
     style START fill:#DBFAFE,stroke:#0075C1,color:#000
-    style FCI fill:#fff,stroke:#0075C1
-    style SEM fill:#fff,stroke:#0075C1
-    style EMB fill:#fff,stroke:#0075C1
-    style EXT fill:#fff,stroke:#89407E
-    style ACC fill:#fff3e0,stroke:#C93F16
-    style QG fill:#fff,stroke:#C93F16
-    style REJ fill:#fff,stroke:#CE4137
+    style FCI #A44276,stroke:#0075C1
+    style SEM #A44276,stroke:#0075C1
+    style EMB #A44276,stroke:#0075C1
+    style EXT #A44276,stroke:#89407E
+    style ACC #A442763e0,stroke:#C93F16
+    style QG #A44276,stroke:#C93F16
+    style REJ #A44276,stroke:#CE4137
     style TAX fill:#f3e5f5,stroke:#89407E
-    style ENR fill:#fff,stroke:#0075C1
-    style CRIT fill:#fff,stroke:#C4426A
-    style CR fill:#fff,stroke:#6A3365
-    style XC fill:#fff,stroke:#0052D6
-    style REP fill:#fff,stroke:#89407E
-    style OUT fill:#fff,stroke:#0075C1
+    style ENR #A44276,stroke:#0075C1
+    style CRIT #A44276,stroke:#C4426A
+    style CR #A44276,stroke:#6A3365
+    style XC #A44276,stroke:#0052D6
+    style REP #A44276,stroke:#89407E
+    style OUT #A44276,stroke:#0075C1
     style FIN fill:#e8f5e9,stroke:#2e7d32,color:#000
 ```
 ## Tiered Model Usage
