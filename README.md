@@ -54,7 +54,7 @@ flowchart TD
     style ACC #A442763e0,stroke:#C93F16
     style QG #A44276,stroke:#C93F16
     style REJ #A44276,stroke:#CE4137
-    style TAX fill:#f3e5f5,stroke:#89407E
+    style TAX fill:#A44276,stroke:#89407E
     style ENR #A44276,stroke:#0075C1
     style CRIT #A44276,stroke:#C4426A
     style CR #A44276,stroke:#6A3365
